@@ -1,0 +1,39 @@
+ version: '3.8'
+
+ services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lmis_user
+      POSTGRES_PASSWORD: securepass123
+      POSTGRES_DB: lmis_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lmis_user -d lmis_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: lmis_user
+      DB_PASSWORD: securepass123
+      DB_NAME: lmis_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+ volumes:
+  pg_data:
