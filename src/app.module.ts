@@ -1,29 +1,71 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
+// Configs
+import databaseConfig from './config/database.config';
+import jwtConfig from './config/jwt.config';
+// Feature Modules
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { RolesModule } from './roles/roles.module';
 import { MarketsModule } from './markets/markets.module';
-import { Market } from './markets/markets.entity'; // Import the Market entity
+import { RegionsModule } from './regions/regions.module';
+import { LivestockTypesModule } from './livestock-types/livestock-types.module';
+import { GradesModule } from './grades/grades.module';
+import { PriceReportsModule } from './price-reports/price-reports.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { ReportsModule } from './reports/reports.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { EmailModule } from './email/email.module';
+import { SmsModule } from './sms/sms.module';
+import { AuditLogModule } from './audit-log/audit-log.module';
+import { HealthModule } from './health/health.module';
+import { DataSyncModule } from './data-sync/data-sync.module';
+import { CronModule } from './cron/cron.module';
+
 @Module({
   imports: [
-    // TypeORM Configuration
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST || 'localhost', // Will be 'postgres' in Docker
-      port: parseInt(process.env.DB_PORT || '5432') || 5432,
-      username: process.env.DB_USERNAME || 'lmis_user',
-      password: process.env.DB_PASSWORD || 'securepass123',
-      database: process.env.DB_NAME || 'lmis_db',
-      entities: [Market], // Add other entities here later
-      synchronize: process.env.NODE_ENV !== 'production', // Auto-create tables (disable in prod)
-      logging: true, // Helpful for debugging
+    // Load environment and config files
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+      load: [databaseConfig, jwtConfig],
     }),
-    // Feature Modules (example)
-    TypeOrmModule.forFeature([Market]),
-    MarketsModule, // Enables repository injection
+
+    // TypeORM with async config from @nestjs/config
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const dbConfig = config.get('database');
+        console.log('Database config:', dbConfig);
+        return {
+          ...dbConfig,
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        };
+      },
+    }),
+
+    // Feature modules
+    AuthModule,
+    UsersModule,
+    RolesModule,
+    MarketsModule,
+    RegionsModule,
+    LivestockTypesModule,
+    GradesModule,
+    PriceReportsModule,
+    AnalyticsModule,
+    ReportsModule,
+    DashboardModule,
+    NotificationsModule,
+    EmailModule,
+    SmsModule,
+    AuditLogModule,
+    HealthModule,
+    DataSyncModule,
+    CronModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
-
