@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Controller } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -24,6 +24,8 @@ import { AuditLogModule } from './audit-log/audit-log.module';
 import { HealthModule } from './health/health.module';
 import { DataSyncModule } from './data-sync/data-sync.module';
 import { CronModule } from './cron/cron.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -67,5 +69,7 @@ import { CronModule } from './cron/cron.module';
     DataSyncModule,
     CronModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
