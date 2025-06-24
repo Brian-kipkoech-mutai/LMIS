@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './srategy/jwt.strategy';
 import { LocalStrategy } from './srategy/local.strategy';
+import { RolesGuard } from './guards/role.guard';
 
 @Module({
   imports: [
@@ -18,13 +19,14 @@ import { LocalStrategy } from './srategy/local.strategy';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get('jwt.secret'),
-        signOptions: { expiresIn: config.get('jwt.expiresIn') },
+        signOptions: { expiresIn: config.get('jwt.expiresIn') || '1h' }, // Default to 1 hour if not set
       }),
     }),
     UsersModule,
   ],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
-  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy, LocalStrategy, RolesGuard],
+  controllers: [AuthController,],
+  exports: [RolesGuard]
 })
 export class AuthModule {}
 
