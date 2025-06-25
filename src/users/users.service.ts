@@ -94,6 +94,10 @@ export class UsersService {
     // Save the updated user
     try {
       const saved = await this.userRepo.save(user);
+      if (updateUserDto.password) {
+        await this.updateLastPasswordChange(user_id);
+      }
+
       const { password, ...userWithoutPassword } = saved;
       return userWithoutPassword;
     } catch (err) {
@@ -105,7 +109,7 @@ export class UsersService {
 
   async findAll(): Promise<Omit<User, 'password'>[]> {
     try {
-      const users = await this.userRepo.find({ where: { isDeleted: false } });
+      const users = await this.userRepo.find();
       return users.map(
         ({ password, ...userWithoutPassword }) => userWithoutPassword,
       );
@@ -117,18 +121,37 @@ export class UsersService {
   // soft delete user by id
 
   async softDelete(user_id: number): Promise<void> {
+    try {
+      const user = await this.findById(user_id);
+      if (!user) {
+        throw new NotFoundException(`User with ID ${user_id} not found`);
+      }
+
+      await this.userRepo.softDelete(user_id);
+    } catch (error) {
+      throw new InternalServerErrorException('Something went wrong');
+    }
+  }
+
+  //update last  login it will be used in the    auth   ,module
+
+  async updateLastLogin(user_id: number): Promise<void> {
     const user = await this.findById(user_id);
     if (!user) {
       throw new NotFoundException(`User with ID ${user_id} not found`);
     }
 
-    // Set isDeleted to true instead of removing the user
-    user.isDeleted = true;
+    user.lastLogin = new Date();
+    await this.userRepo.save(user);
+  }
 
-    try {
-      await this.userRepo.save(user);
-    } catch (error) {
-      throw new InternalServerErrorException('Something went wrong');
+  async updateLastPasswordChange(user_id: number): Promise<void> {
+    const user = await this.findById(user_id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${user_id} not found`);
     }
+
+    user.lastPasswordChange = new Date();
+    await this.userRepo.save(user);
   }
 }

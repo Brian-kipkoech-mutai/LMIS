@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 
 @Entity('lmis_user')
 export class User {
@@ -17,6 +24,21 @@ export class User {
   @Column()
   role!: string;
 
-  @Column({ default: false })
-  isDeleted!: boolean;
+  @DeleteDateColumn()
+  deletedAt?: Date;
+
+  @Column({ default: true })
+  isActive!: boolean;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastLogin?: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastPasswordChange?: Date;
 }
