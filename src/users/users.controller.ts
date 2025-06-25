@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Post, UseGuards, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+  Body,
+  Patch,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { RolesGuard } from 'src/auth/guards/role.guard';
@@ -9,8 +17,10 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { UpdateUserDto } from './dtos/updateUser.dto';
 
 @ApiTags('users') // Swagger tag for users endpoints
 @ApiBearerAuth() // Use Bearer token authentication
@@ -20,18 +30,58 @@ import {
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+// Get specific user
   @ApiOperation({ summary: 'Get specific user' })
   @ApiAcceptedResponse({ description: 'Returns specific user details' })
   @ApiParam({ name: 'username', required: true, description: 'Username' })
+  @ApiOperation({ summary: 'Update user info (partial)' })
   @Get(':username')
   async getByUsername(@Param('username') username: string) {
     return this.usersService.findByUsername(username);
   }
 
+
+  // create a new user
   @ApiOperation({ summary: 'Create a new user' })
   @ApiAcceptedResponse({ description: 'User created successfully' })
   @Post('create')
   async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+
+  //update user by id
+  @ApiOperation({ summary: 'Update user' })
+  @ApiAcceptedResponse({ description: 'User updated successfully' })
+  @ApiResponse({ status: 200, description: 'User updated successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 400, description: 'Validation failed' })
+  @Patch(':user_id')
+  async update(
+    @Param('user_id') user_id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.update(user_id, updateUserDto);
+  }
+
+
+  // Get all users
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiAcceptedResponse({ description: 'Returns all users' })
+  @ApiResponse({ status: 200, description: 'List of users' })
+  @ApiResponse({ status: 404, description: 'No users found' })
+  @Get()
+  async getAllUsers() {
+    return this.usersService.findAll();
+  }
+
+  //soft delete user by id
+  @ApiOperation({ summary: 'Soft delete user by ID' })
+  @ApiAcceptedResponse({ description: 'User soft deleted successfully' })
+  @ApiResponse({ status: 200, description: 'User soft deleted successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @Patch('soft-delete/:user_id')
+  async softDeleteUser(@Param('user_id') user_id: number) {
+    return this.usersService.softDelete(user_id);
   }
 }

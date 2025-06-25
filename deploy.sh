@@ -19,7 +19,7 @@ docker push $IMAGE_NAME
 # ====== SSH AND DEPLOY ======
 echo "🔧 Connecting to server and deploying ..."
 
-sshpass -p "$SERVER_PASSWORD" ssh -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF
+sshpass -p "$SERVER_PASSWORD" ssh -t -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF
   echo "📥 Pulling latest image ..."
   docker pull $IMAGE_NAME
 
