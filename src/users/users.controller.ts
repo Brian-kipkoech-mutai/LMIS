@@ -6,6 +6,8 @@ import {
   UseGuards,
   Body,
   Patch,
+  Delete,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Roles } from 'src/auth/decorators/roles.decorators';
@@ -21,7 +23,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UpdateUserDto } from './dtos/updateUser.dto';
-
+import { Audit } from 'src/audit/decorators/audit.decorator';
 @ApiTags('users') // Swagger tag for users endpoints
 @ApiBearerAuth() // Use Bearer token authentication
 @Controller('users')
@@ -30,7 +32,7 @@ import { UpdateUserDto } from './dtos/updateUser.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-// Get specific user
+  // Get specific user
   @ApiOperation({ summary: 'Get specific user' })
   @ApiAcceptedResponse({ description: 'Returns specific user details' })
   @ApiParam({ name: 'username', required: true, description: 'Username' })
@@ -40,7 +42,6 @@ export class UsersController {
     return this.usersService.findByUsername(username);
   }
 
-
   // create a new user
   @ApiOperation({ summary: 'Create a new user' })
   @ApiAcceptedResponse({ description: 'User created successfully' })
@@ -49,21 +50,17 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-
   //update user by id
   @ApiOperation({ summary: 'Update user' })
   @ApiAcceptedResponse({ description: 'User updated successfully' })
   @ApiResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 400, description: 'Validation failed' })
-  @Patch(':user_id')
-  async update(
-    @Param('user_id') user_id: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return this.usersService.update(user_id, updateUserDto);
+  @Patch(':id')
+  @ApiParam({ name: 'id', required: true, description: 'User ID' })
+  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto);
   }
-
 
   // Get all users
   @ApiOperation({ summary: 'Get all users' })
@@ -80,8 +77,8 @@ export class UsersController {
   @ApiAcceptedResponse({ description: 'User soft deleted successfully' })
   @ApiResponse({ status: 200, description: 'User soft deleted successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  @Patch('soft-delete/:user_id')
-  async softDeleteUser(@Param('user_id') user_id: number) {
-    return this.usersService.softDelete(user_id);
+  @Delete('soft-delete/:id')
+  async softDeleteUser(@Param('id') id: number) {
+    return this.usersService.softDelete(id);
   }
 }

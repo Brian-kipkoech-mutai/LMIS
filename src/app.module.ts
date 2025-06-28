@@ -1,10 +1,17 @@
-import { Module, Controller } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
+import { MiddlewareConsumer, NestModule } from '@nestjs/common';
 // Configs
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
+
+//interceptors
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AuditInterceptor } from './audit/interceptors/audit.interceptor';
+
+//middleware
+import { AuditMiddleware } from './audit/middlware/audit.middlware';
 // Feature Modules
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -20,12 +27,13 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { EmailModule } from './email/email.module';
 import { SmsModule } from './sms/sms.module';
-import { AuditLogModule } from './audit-log/audit-log.module';
 import { HealthModule } from './health/health.module';
 import { DataSyncModule } from './data-sync/data-sync.module';
 import { CronModule } from './cron/cron.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuditModule } from './audit/audit.module';
+import { EntityRepositoryMap } from './utils/repository.maps';
 
 @Module({
   imports: [
@@ -64,12 +72,23 @@ import { AppService } from './app.service';
     NotificationsModule,
     EmailModule,
     SmsModule,
-    AuditLogModule,
     HealthModule,
     DataSyncModule,
     CronModule,
+    AuditModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuditMiddleware).forRoutes('*'); // Apply to all routes
+  }
+}

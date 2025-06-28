@@ -10,7 +10,7 @@ import {
 @Entity('lmis_user')
 export class User {
   @PrimaryGeneratedColumn()
-  user_id!: number;
+  id!: number;
 
   @Column({ unique: true })
   username!: string;

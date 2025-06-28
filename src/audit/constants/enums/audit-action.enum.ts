@@ -1,0 +1,16 @@
+export enum AuditAction {
+  // CRUD
+  CREATE = 'CREATE',
+  READ = 'READ',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
+
+  // Auth
+  LOGIN = 'LOGIN',
+  LOGIN_FAILED = 'LOGIN_FAILED',
+  PASSWORD_CHANGE = 'PASSWORD_CHANGE',
+
+  // Custom
+  DATA_EXPORT = 'DATA_EXPORT',
+  BULK_OPERATION = 'BULK_OPERATION',
+}

@@ -10,6 +10,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { UpdateUserDto } from './dtos/updateUser.dto';
 import { hashPassword } from 'src/utils/hash.passoword';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -41,12 +42,12 @@ export class UsersService {
     }
   }
 
-  async findById(user_id: number): Promise<User | null> {
+  async findById(id: number): Promise<User | null> {
     try {
-      const user = await this.userRepo.findOne({ where: { user_id } });
+      const user = await this.userRepo.findOne({ where: { id } });
 
       if (!user) {
-        throw new NotFoundException(`User with ID ${user_id} not found`);
+        throw new NotFoundException(`User with ID ${id} not found`);
       }
       return user;
     } catch (error) {
@@ -76,12 +77,12 @@ export class UsersService {
   }
 
   async update(
-    user_id: number,
+    id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<Omit<User, 'password'>> {
-    const user = await this.findById(user_id);
+    const user = await this.findById(id);
     if (!user) {
-      throw new NotFoundException(`User with ID ${user_id} not found`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     // Update user properties
@@ -95,7 +96,7 @@ export class UsersService {
     try {
       const saved = await this.userRepo.save(user);
       if (updateUserDto.password) {
-        await this.updateLastPasswordChange(user_id);
+        await this.updateLastPasswordChange(id);
       }
 
       const { password, ...userWithoutPassword } = saved;
@@ -120,14 +121,14 @@ export class UsersService {
 
   // soft delete user by id
 
-  async softDelete(user_id: number): Promise<void> {
+  async softDelete(id: number): Promise<void> {
     try {
-      const user = await this.findById(user_id);
+      const user = await this.findById(id);
       if (!user) {
-        throw new NotFoundException(`User with ID ${user_id} not found`);
+        throw new NotFoundException(`User with ID ${id} not found`);
       }
 
-      await this.userRepo.softDelete(user_id);
+      await this.userRepo.softDelete(id);
     } catch (error) {
       throw new InternalServerErrorException('Something went wrong');
     }
@@ -135,20 +136,20 @@ export class UsersService {
 
   //update last  login it will be used in the    auth   ,module
 
-  async updateLastLogin(user_id: number): Promise<void> {
-    const user = await this.findById(user_id);
+  async updateLastLogin(id: number): Promise<void> {
+    const user = await this.findById(id);
     if (!user) {
-      throw new NotFoundException(`User with ID ${user_id} not found`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     user.lastLogin = new Date();
     await this.userRepo.save(user);
   }
 
-  async updateLastPasswordChange(user_id: number): Promise<void> {
-    const user = await this.findById(user_id);
+  async updateLastPasswordChange(id: number): Promise<void> {
+    const user = await this.findById(id);
     if (!user) {
-      throw new NotFoundException(`User with ID ${user_id} not found`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     user.lastPasswordChange = new Date();
