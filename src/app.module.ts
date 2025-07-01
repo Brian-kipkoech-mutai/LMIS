@@ -33,14 +33,14 @@ import { CronModule } from './cron/cron.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuditModule } from './audit/audit.module';
-import { EntityRepositoryMap } from './utils/repository.maps';
+ 
 
 @Module({
   imports: [
     // Load environment and config files
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: process.env.NODE_ENV === 'production' ? '.env.production.local' : '.env.development.local',
       load: [databaseConfig, jwtConfig],
     }),
 

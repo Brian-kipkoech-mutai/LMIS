@@ -23,11 +23,6 @@
       dockerfile: Dockerfile
     environment:
       NODE_ENV: production
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: lmis_user
-      DB_PASSWORD: securepass123
-      DB_NAME: lmis_db
     depends_on:
       postgres:
         condition: service_healthy

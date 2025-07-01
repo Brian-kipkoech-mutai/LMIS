@@ -19,7 +19,7 @@ export class AuditLog {
   @Column({ nullable: true })
   entityId?: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb' ,nullable:true})
   actor!: Record<string, any>;
 
   @Column({ type: 'jsonb', nullable: true })
