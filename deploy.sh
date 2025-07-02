@@ -5,6 +5,7 @@ IMAGE_NAME="brianmutai/lmis-backend:latest"
 SERVER_USER="bmutai"
 SERVER_HOST="41.220.118.182"
 SERVER_PORT="2222"
+# shellcheck disable=SC2016
 SERVER_PASSWORD='lm1$_973g!'
 REMOTE_DIR="/home/bmutai/lmis_docker_compose"
 

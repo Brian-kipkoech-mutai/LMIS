@@ -43,3 +43,4 @@ export class AuthController {
     return { message: 'Logout successful (client must discard token)' };
   }
 }
+
