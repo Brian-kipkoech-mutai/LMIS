@@ -7,7 +7,7 @@ SERVER_HOST="41.220.118.182"
 SERVER_PORT="2222"
 # shellcheck disable=SC2016
 SERVER_PASSWORD='lm1$_973g!'
-REMOTE_DIR="/home/bmutai/lmis_docker_compose"
+REMOTE_DIR="/home/bmutai/lms-infrastructure"
 
 # ====== BUILD LOCALLY ======
 echo "🔨 Building Docker image: $IMAGE_NAME ..."
