@@ -26,8 +26,9 @@ sshpass -p "$SERVER_PASSWORD" ssh -t -p $SERVER_PORT -o StrictHostKeyChecking=no
 
   echo "🔁 Rebuilding and restarting containers with --force-recreate ..."
   cd $REMOTE_DIR
-  docker-compose down
-  docker-compose up -d --build --force-recreate
+  docker compose down
+  docker compose up -d --build --force-recreate backend
+  docker compose up -d postgres
 
   echo "✅ Server deployment complete!"
 EOF
