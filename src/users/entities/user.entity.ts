@@ -5,7 +5,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Otp } from '../../auth/entities/otp.entity'; // Adjust the import path as necessary
 
 @Entity('lmis_user')
 export class User {
@@ -41,4 +43,7 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   lastPasswordChange?: Date;
+
+  @OneToMany(() => Otp, (otp) => otp.user, { cascade: true })
+  otps?: Otp[];
 }

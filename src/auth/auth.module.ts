@@ -10,6 +10,9 @@ import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './srategy/jwt.strategy';
 import { LocalStrategy } from './srategy/local.strategy';
 import { RolesGuard } from './guards/role.guard';
+import { EmailModule } from 'src/email/email.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Otp } from './entities/otp.entity';
 
 @Module({
   imports: [
@@ -22,11 +25,13 @@ import { RolesGuard } from './guards/role.guard';
         signOptions: { expiresIn: config.get('jwt.expiresIn') || '1h' }, // Default to 1 hour if not set
       }),
     }),
+    TypeOrmModule.forFeature([Otp]),
     UsersModule,
+    EmailModule,
   ],
   providers: [AuthService, JwtStrategy, LocalStrategy, RolesGuard],
-  controllers: [AuthController,],
-  exports: [RolesGuard]
+  controllers: [AuthController],
+  exports: [RolesGuard],
 })
 export class AuthModule {}
 
