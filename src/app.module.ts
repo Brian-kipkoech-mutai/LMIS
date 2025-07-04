@@ -33,6 +33,7 @@ import { CronModule } from './cron/cron.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuditModule } from './audit/audit.module';
+import sendGridConfig from './config/sendGrid.config';
  
 
 @Module({
@@ -41,7 +42,7 @@ import { AuditModule } from './audit/audit.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'production' ? '.env.production.local' : '.env.development.local',
-      load: [databaseConfig, jwtConfig],
+      load: [databaseConfig, jwtConfig, sendGridConfig],
     }),
 
     // TypeORM with async config from @nestjs/config

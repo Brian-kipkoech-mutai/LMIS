@@ -5,7 +5,7 @@ import * as sgMail from '@sendgrid/mail';
 @Injectable()
 export class EmailService {
   constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get<string>('SENDGRID_API_KEY');
+    const apiKey = this.configService.get<string>('sendgrid.apiKey');
 
     if (!apiKey) {
       throw new Error(
@@ -16,13 +16,9 @@ export class EmailService {
   }
 
   async sendMail(to: string, subject: string, html: string) {
-    console.log(
-      'sendgrid_api',
-      this.configService.get<string>('SENDGRID_API_KEY'),
-    );
     const msg = {
       to,
-      from: this.configService.get<string>('SENDGRID_FROM_EMAIL') || '',
+      from: this.configService.get<string>('sendgrid.fromEmail') || '',
       subject,
       html,
     };
