@@ -2,7 +2,13 @@ import * as dotenv from 'dotenv';
 import { resolve } from 'path';
 import { DataSource } from 'typeorm';
 
-dotenv.config({ path: resolve(__dirname, '../../.env.production.live.db') });
+const envFile =
+  process.env.NODE_ENV === 'production'
+    ? '../../.env.production.local'
+    : '../../.env.production.live.db';
+
+dotenv.config({ path: resolve(__dirname, envFile) });
+
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
