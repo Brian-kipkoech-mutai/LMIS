@@ -8,7 +8,7 @@
       POSTGRES_PASSWORD: securepass123
       POSTGRES_DB: lmis_db
     ports:
-      - "5432:5432"
+      - "5430:5430"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
