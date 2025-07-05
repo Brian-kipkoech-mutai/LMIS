@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MarketsService } from './markets.service';
-import { Market } from './markets.entity';
-import { MarketsController } from './markets.controller';
+import { MarketService } from './markets.service';
+import { MarketController } from './markets.controller';
+import { RegionsModule } from 'src/regions/regions.module';
+import { Market } from './entities/market.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Market])],
-  providers: [MarketsService],
-  controllers: [MarketsController],
+  imports: [TypeOrmModule.forFeature([Market]), RegionsModule],
+  providers: [MarketService],
+  controllers: [MarketController],
 })
 export class MarketsModule {}

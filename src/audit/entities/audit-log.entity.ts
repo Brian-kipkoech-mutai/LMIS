@@ -45,4 +45,6 @@ export class AuditLog {
 
   @Column({ type: 'text', nullable: true })
   description?: string;
+
+  
 }

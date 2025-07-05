@@ -6,9 +6,17 @@ const envFile =
   process.env.NODE_ENV === 'production'
     ? '../../.env.production.local'
     : '../../.env.production.live.db';
-
+   
 dotenv.config({ path: resolve(__dirname, envFile) });
+ 
+console.log('all envs',
 
+  "port:", process.env.DB_PORT,
+  "host:", process.env.DB_HOST,
+  "username:", process.env.DB_USERNAME,
+  "database:", process.env.DB_NAME
+  
+)
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
@@ -21,4 +29,5 @@ export const AppDataSource = new DataSource({
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
 });
+
 

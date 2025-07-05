@@ -6,10 +6,11 @@ import { AuditService } from './audit.service';
 import { AuditController } from './audit.controller';
 import { AuditInterceptor } from './interceptors/audit.interceptor';
 import { User } from 'src/users/entities/user.entity';
-import { Market } from 'src/markets/markets.entity';
 import { EntityRepositoryMap } from 'src/utils/repository.maps';
+import { Market } from 'src/markets/entities/market.entity';
+import { Region } from 'src/regions/entities/region.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([AuditLog,User,Market])],
+  imports: [TypeOrmModule.forFeature([AuditLog,User,Market, Region])],
   controllers: [AuditController],
   providers: [
     AuditService,

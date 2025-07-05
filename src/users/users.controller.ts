@@ -7,7 +7,6 @@ import {
   Body,
   Patch,
   Delete,
-  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Roles } from 'src/auth/decorators/roles.decorators';
@@ -23,7 +22,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UpdateUserDto } from './dtos/updateUser.dto';
-import { Audit } from 'src/audit/decorators/audit.decorator';
 @ApiTags('users') // Swagger tag for users endpoints
 @ApiBearerAuth() // Use Bearer token authentication
 @Controller('users')

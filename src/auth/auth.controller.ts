@@ -11,6 +11,9 @@ import { LoginDto } from './dto/login.dto';
 import { EmailService } from 'src/email/email.service';
 import { LoginVerificationTemplate } from 'src/config/email.template';
 import { VerifyOtpDto } from './dto/verify.OTP';
+import { Audit } from 'src/audit/decorators/audit.decorator';
+import { AuditAction } from 'src/audit/constants/enums/audit-action.enum';
+
 @ApiTags('auth') // Swagger tag for auth endpoints
 @Controller('auth')
 export class AuthController {
@@ -31,6 +34,7 @@ export class AuthController {
   })
   @Post('login')
   @UseGuards(AuthGuard('local'))
+  @Audit({ action: AuditAction.LOGIN })
   async login(@Request() req: any) {
     const user = req.user; // User object returned by LocalStrategy
     //generates otp
@@ -48,6 +52,7 @@ export class AuthController {
   }
 
   @Post('verify-otp')
+  @Audit({ action: AuditAction.VERIFY_OTP })
   @ApiOperation({ summary: 'Verify OTP for login' })
   @ApiAcceptedResponse({
     description: 'Returns access token on successful OTP verification',

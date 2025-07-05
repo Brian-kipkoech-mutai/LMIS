@@ -9,6 +9,7 @@ export enum AuditAction {
   LOGIN = 'LOGIN',
   LOGIN_FAILED = 'LOGIN_FAILED',
   PASSWORD_CHANGE = 'PASSWORD_CHANGE',
+  VERIFY_OTP = 'VERIFY_OTP',
 
   // Custom
   DATA_EXPORT = 'DATA_EXPORT',
