@@ -12,6 +12,7 @@ import {
 
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from 'src/users/entities/user.entity';
+import { MarketType } from '../enums/market.type.enums';
 
 @Entity()
 export class Market {
@@ -49,4 +50,12 @@ export class Market {
     eager: true, //  automatically fetch the user when querying market
   })
   data_collector!: User;
+
+  @Column({ nullable: true, type: 'enum', enum: MarketType })
+  @ApiProperty({
+    example: 'import',
+    description: 'Type of market (import, export)',
+    required: true,
+  })
+  marketType?: MarketType;
 }
