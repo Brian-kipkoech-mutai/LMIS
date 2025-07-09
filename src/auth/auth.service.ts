@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { Otp } from './entities/otp.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { VerifyOtpDto } from './dto/verify.OTP';
+ 
 
 @Injectable()
 export class AuthService {
@@ -15,10 +16,16 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectRepository(Otp)
     private readonly otpRepo: Repository<Otp>,
+   
   ) {}
 
   async validateUser(email: string, password: string) {
+    console.log('Validating user with email:', email);
     const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      console.log('User not found for email:', email);
+      // throw new UnauthorizedException('Invalid email or password');
+    }
     console.log('provided password hash:', await bcrypt.hash(password, 10));
     user && console.log('user.password:', user.password);
     if (!user || !(await bcrypt.compare(password, user.password))) {

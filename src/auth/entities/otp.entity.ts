@@ -19,8 +19,8 @@ export class Otp {
   @Column()
   code!: string;
 
-  @Column()
-  type!: 'email' | 'sms';
+  @Column({ type: 'enum', enum: ['email', 'sms'], default: 'email' })
+  type!: string;
 
   @CreateDateColumn()
   createdAt!: Date;

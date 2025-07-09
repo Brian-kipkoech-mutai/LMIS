@@ -11,6 +11,8 @@ import {
 } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/users/entities/user.entity';
+
 @Entity()
 export class Market {
   @PrimaryGeneratedColumn()
@@ -35,10 +37,16 @@ export class Market {
   })
   updatedAt!: Date;
 
-  @ManyToOne(() => Region)
+  @ManyToOne(() => Region, (region) => region.markets, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'regionId' })
   region!: Region;
 
   @Column()
   regionId!: number;
+
+  @ManyToOne(() => User, (user) => user.markets, {
+    nullable: true,
+    eager: true, //  automatically fetch the user when querying market
+  })
+  data_collector!: User;
 }

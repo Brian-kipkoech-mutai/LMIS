@@ -22,12 +22,13 @@ import { CreateRegionDto, UpdateRegionDto } from './dtos/region.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorators';
+import { UserRoles } from 'src/users/enums/user.roles.enums';
 
 @ApiTags('Regions')
 @ApiBearerAuth()
 @Controller('regions')
 @UseGuards(AuthGuard('jwt'), RolesGuard) // Use JWT authentication guard and custom roles guard
-@Roles('admin')
+@Roles(UserRoles.ADMIN)
 export class RegionsController {
   constructor(private readonly regionsService: RegionsService) {}
 

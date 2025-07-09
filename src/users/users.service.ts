@@ -1,4 +1,6 @@
+import { MarketService } from './../markets/markets.service';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -10,49 +12,40 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { UpdateUserDto } from './dtos/updateUser.dto';
 import { hashPassword } from 'src/utils/hash.passoword';
+import { UserRoles } from './enums/user.roles.enums';
+import { Market } from 'src/markets/entities/market.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly marketService: MarketService,
   ) {}
 
   async findByEmail(email: string): Promise<User | null> {
-    try {
-      const user = await this.userRepo.findOne({ where: { email } });
+    const user = await this.userRepo.findOne({ where: { email } });
 
-      if (!user) {
-        throw new NotFoundException(`User with email ${email} not found`);
-      }
-      return user;
-    } catch (error) {
-      throw new InternalServerErrorException('Something went wrong');
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
     }
+    return user;
   }
   async findByUsername(username: string): Promise<User | null> {
-    try {
-      const user = await this.userRepo.findOne({ where: { username } });
-      if (!user) {
-        throw new NotFoundException(`User with username ${username} not found`);
-      }
-      return user;
-    } catch (error) {
-      throw new InternalServerErrorException('Something went wrong');
+    const user = await this.userRepo.findOne({ where: { username } });
+    if (!user) {
+      throw new NotFoundException(`User with username ${username} not found`);
     }
+    return user;
   }
 
   async findById(id: number): Promise<User | null> {
-    try {
-      const user = await this.userRepo.findOne({ where: { id } });
+    const user = await this.userRepo.findOne({ where: { id } });
 
-      if (!user) {
-        throw new NotFoundException(`User with ID ${id} not found`);
-      }
-      return user;
-    } catch (error) {
-      throw new InternalServerErrorException('Something went wrong');
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
+    return user;
   }
 
   async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
@@ -62,7 +55,8 @@ export class UsersService {
       username: createUserDto.username,
       email: createUserDto.email,
       password: hashedPassword,
-      role: createUserDto.role,
+      role: UserRoles[createUserDto.role],
+      phoneNumber: createUserDto.phoneNumber,
     });
     try {
       const saved = await this.userRepo.save(user);
@@ -122,16 +116,12 @@ export class UsersService {
   // soft delete user by id
 
   async softDelete(id: number): Promise<void> {
-    try {
-      const user = await this.findById(id);
-      if (!user) {
-        throw new NotFoundException(`User with ID ${id} not found`);
-      }
-
-      await this.userRepo.softDelete(id);
-    } catch (error) {
-      throw new InternalServerErrorException('Something went wrong');
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
+
+    await this.userRepo.softDelete(id);
   }
 
   //update last  login it will be used in the    auth   ,module
@@ -154,5 +144,42 @@ export class UsersService {
 
     user.lastPasswordChange = new Date();
     await this.userRepo.save(user);
+  }
+
+  //find by role
+  async findByRole(role: UserRoles): Promise<Omit<User, 'password'>[]> {
+    const users = await this.userRepo.find({ where: { role } });
+    return users.map(
+      ({ password, ...userWithoutPassword }) => userWithoutPassword,
+    );
+  }
+
+  //assign markets to use
+
+  async assignMarkets(id: number, marketsIds: number[]): Promise<boolean> {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    if (user.role == UserRoles.DATA_COLLECTOR) {
+      throw new BadRequestException(
+        'Only FIELD_AGENT users can be assigned markets',
+      );
+    }
+    const markets = await this.marketService.findByIds(marketsIds);
+
+    // Validate all markets exist
+    if (markets.length !== marketsIds.length) {
+      throw new BadRequestException('One or more markets not found');
+    }
+
+    // Assign user to each market
+    for (const market of markets) {
+      market.data_collector = user;
+      await this.marketService.save(market);
+    }
+
+    return true;
   }
 }

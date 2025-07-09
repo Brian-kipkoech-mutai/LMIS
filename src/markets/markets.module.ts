@@ -9,5 +9,6 @@ import { Market } from './entities/market.entity';
   imports: [TypeOrmModule.forFeature([Market]), RegionsModule],
   providers: [MarketService],
   controllers: [MarketController],
+  exports: [MarketService],
 })
 export class MarketsModule {}

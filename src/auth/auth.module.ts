@@ -13,6 +13,7 @@ import { RolesGuard } from './guards/role.guard';
 import { EmailModule } from 'src/email/email.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Otp } from './entities/otp.entity';
+import { SmsModule } from 'src/sms/sms.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { Otp } from './entities/otp.entity';
     TypeOrmModule.forFeature([Otp]),
     UsersModule,
     EmailModule,
+    SmsModule
   ],
   providers: [AuthService, JwtStrategy, LocalStrategy, RolesGuard],
   controllers: [AuthController],

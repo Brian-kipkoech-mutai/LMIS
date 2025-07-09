@@ -1,11 +1,10 @@
 // src/market/market.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateMarketDto, UpdateMarketDto } from './dtos/market.dto';
 import { RegionsService } from 'src/regions/regions.service';
-import { Market } from './entities/market.entity';
-
+import { Market } from './entities/market.entity'
 @Injectable()
 export class MarketService {
   constructor(
@@ -65,4 +64,18 @@ export class MarketService {
     }
     await this.marketRepository.remove(market);
   }
+
+  //find  markets by ids
+  findByIds(ids: number[]): Promise<Market[]> {
+    return this.marketRepository.findBy({ id: In(ids) });
+  }
+
+  //save the market
+  save(market: Market): Promise<Market> {
+    return this.marketRepository.save(market);
+  }
 }
+
+
+ 
+

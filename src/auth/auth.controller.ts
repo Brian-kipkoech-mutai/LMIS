@@ -13,6 +13,7 @@ import { LoginVerificationTemplate } from 'src/config/email.template';
 import { VerifyOtpDto } from './dto/verify.OTP';
 import { Audit } from 'src/audit/decorators/audit.decorator';
 import { AuditAction } from 'src/audit/constants/enums/audit-action.enum';
+import { SmsService } from 'src/sms/sms.service';
 
 @ApiTags('auth') // Swagger tag for auth endpoints
 @Controller('auth')
@@ -20,6 +21,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly emailService: EmailService,
+    private readonly smsService: SmsService,
   ) {}
 
   @ApiOperation({ summary: 'User login' })
@@ -37,9 +39,11 @@ export class AuthController {
   @Audit({ action: AuditAction.LOGIN })
   async login(@Request() req: any) {
     const user = req.user; // User object returned by LocalStrategy
+
     //generates otp
     const otp = this.generateCode();
     // Log the user object for debugging
+    console.log('otp generated:', otp);
 
     const html = LoginVerificationTemplate.replace('{{OTP_CODE}}', otp).replace(
       '{{YEAR}}',
@@ -47,7 +51,21 @@ export class AuthController {
     );
 
     this.authService.saveOtp(otp, user.id); // Save OTP to database
+    console.log('OTP generated:', otp);
     this.emailService.sendMail(user.email, 'login attempt verification', html);
+
+    console.log('Email sent to:', user.email);
+    console.log("user", user);
+    if (user.phoneNumber) {
+      this.smsService.sendSms(
+        user.phoneNumber,
+        `[Somalia Livestock Market Portal] Your OTP is ${otp}. It expires in 10 minutes. Do not share this code.`,
+      );
+      console.log('SMS sent to:', user.phoneNumber);
+    } else {
+      console.log('User does not have a phone number');
+    }
+
     return user.id;
   }
 

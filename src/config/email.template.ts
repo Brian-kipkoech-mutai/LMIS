@@ -25,7 +25,7 @@ export const LoginVerificationTemplate = `<!DOCTYPE html>
             </tr>
             <tr>
               <td style="background-color: #f7fafc; padding: 20px; text-align: center; font-size: 13px; color: #a0aec0;">
-                © {{YEAR}} Livestock management system of Somalia, All rights reserved.
+                © {{YEAR}} Somalia Livestock Market Portal, All rights reserved.
               </td>
             </tr>
           </table>

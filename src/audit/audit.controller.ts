@@ -15,12 +15,13 @@ import {
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/guards/role.guard';
+import { UserRoles } from 'src/users/enums/user.roles.enums';
 
 @ApiTags('Audit')
 @ApiBearerAuth()
 @Controller('audit-logs')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles('admin')
+@Roles(UserRoles.ADMIN)
 export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 

@@ -1,3 +1,4 @@
+import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   Controller,
   Get,
@@ -16,17 +17,20 @@ import { CreateUserDto } from './dtos/createUser.dto';
 import {
   ApiAcceptedResponse,
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { UpdateUserDto } from './dtos/updateUser.dto';
+import { UserRoles } from './enums/user.roles.enums';
+
 @ApiTags('users') // Swagger tag for users endpoints
 @ApiBearerAuth() // Use Bearer token authentication
 @Controller('users')
 @UseGuards(AuthGuard('jwt'), RolesGuard) // Use JWT authentication guard and custom roles guard
-@Roles('admin') // Only allow access to admin
+@Roles(UserRoles.ADMIN) // Only allow access to admin
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -36,27 +40,32 @@ export class UsersController {
   @ApiParam({ name: 'username', required: true, description: 'Username' })
   @ApiOperation({ summary: 'Update user info (partial)' })
   @Get(':username')
-  async getByUsername(@Param('username') username: string) {
+  getByUsername(@Param('username') username: string) {
     return this.usersService.findByUsername(username);
   }
 
   // create a new user
-  @ApiOperation({ summary: 'Create a new user' })
+  @ApiOperation({
+    summary: 'Create a new user',
+    description: 'Refer to CreateUserDto schema for valid roles.',
+  })
   @ApiAcceptedResponse({ description: 'User created successfully' })
   @Post('create')
-  async create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   //update user by id
-  @ApiOperation({ summary: 'Update user' })
+  @ApiOperation({
+    summary: 'Update user',
+  })
   @ApiAcceptedResponse({ description: 'User updated successfully' })
   @ApiResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 400, description: 'Validation failed' })
   @Patch(':id')
   @ApiParam({ name: 'id', required: true, description: 'User ID' })
-  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
@@ -66,7 +75,7 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'List of users' })
   @ApiResponse({ status: 404, description: 'No users found' })
   @Get()
-  async getAllUsers() {
+  getAllUsers() {
     return this.usersService.findAll();
   }
 
@@ -76,7 +85,41 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'User soft deleted successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   @Delete('soft-delete/:id')
-  async softDeleteUser(@Param('id') id: number) {
+  softDeleteUser(@Param('id') id: number) {
     return this.usersService.softDelete(id);
   }
+
+  //get users by role
+  @ApiOperation({ summary: 'Get users by role' })
+  @ApiAcceptedResponse({ description: 'Returns all users by role' })
+  @ApiResponse({ status: 200, description: 'List of requested users by role' })
+  @ApiParam({
+    name: 'role',
+    required: true,
+    description: 'User role to filter by',
+    enum: UserRoles,
+    enumName: 'UserRoles',
+  })
+  @Get('role/:role')
+  getUsersByRole(@Param('role') role: UserRoles) {
+    return this.usersService.findByRole(role);
+  }
+
+  //assign markets to a data_collector
+  @ApiOperation({ summary: 'Assign markets to a data_collector' })
+  @ApiAcceptedResponse({ description: 'Markets assigned successfully' })
+  @ApiResponse({ status: 200, description: 'Markets assigned successfully' })
+  @ApiResponse({ status: 404, description: 'User or markets not found' })
+  @ApiBody({ schema: { example: { marketIds: [1, 2, 3] } } })
+  @Patch(':id/assign-markets')
+  assignMarketsToDataCollector(
+    @Param('id') id: number,
+    @Body('marketIds') marketIds: number[],
+  ) {
+    return this.usersService.assignMarkets(id, marketIds);
+  }
+
+   
+  
+
 }

@@ -20,12 +20,13 @@ import { Param } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorators';
+import { UserRoles } from 'src/users/enums/user.roles.enums';
 
 @ApiTags('Markets')
 @ApiBearerAuth()
 @Controller('markets')
 @UseGuards(AuthGuard('jwt'), RolesGuard) // Use JWT authentication guard and custom roles guard
-@Roles('admin')
+@Roles(UserRoles.ADMIN)
 export class MarketController {
   constructor(private readonly marketService: MarketService) {}
 
