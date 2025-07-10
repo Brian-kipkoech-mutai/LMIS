@@ -104,22 +104,4 @@ export class UsersController {
   getUsersByRole(@Param('role') role: UserRoles) {
     return this.usersService.findByRole(role);
   }
-
-  //assign markets to a data_collector
-  @ApiOperation({ summary: 'Assign markets to a data_collector' })
-  @ApiAcceptedResponse({ description: 'Markets assigned successfully' })
-  @ApiResponse({ status: 200, description: 'Markets assigned successfully' })
-  @ApiResponse({ status: 404, description: 'User or markets not found' })
-  @ApiBody({ schema: { example: { marketIds: [1, 2, 3] } } })
-  @Patch(':id/assign-markets')
-  assignMarketsToDataCollector(
-    @Param('id') id: number,
-    @Body('marketIds') marketIds: number[],
-  ) {
-    return this.usersService.assignMarkets(id, marketIds);
-  }
-
-   
-  
-
 }

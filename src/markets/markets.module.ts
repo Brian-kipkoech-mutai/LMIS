@@ -4,9 +4,10 @@ import { MarketService } from './markets.service';
 import { MarketController } from './markets.controller';
 import { RegionsModule } from 'src/regions/regions.module';
 import { Market } from './entities/market.entity';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Market]), RegionsModule],
+  imports: [TypeOrmModule.forFeature([Market]), RegionsModule,UsersModule],
   providers: [MarketService],
   controllers: [MarketController],
   exports: [MarketService],

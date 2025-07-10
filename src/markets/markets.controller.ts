@@ -12,6 +12,8 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiAcceptedResponse,
+  ApiBody,
 } from '@nestjs/swagger';
 import { MarketService } from './markets.service';
 import { CreateMarketDto, UpdateMarketDto } from './dtos/market.dto';
@@ -61,5 +63,18 @@ export class MarketController {
   @ApiResponse({ status: 204, description: 'Market deleted' })
   remove(@Param('id') id: number) {
     return this.marketService.remove(id);
+  }
+
+  @ApiOperation({ summary: 'Assign markets to a data_collector' })
+  @ApiAcceptedResponse({ description: 'Markets assigned successfully' })
+  @ApiResponse({ status: 200, description: 'Markets assigned successfully' })
+  @ApiResponse({ status: 404, description: 'User or markets not found' })
+  @ApiBody({ schema: { example: { marketIds: [1, 2, 3] } } })
+  @Patch(':user_id/assign-markets')
+  assignMarketsToDataCollector(
+    @Param('user_id') user_id: number,
+    @Body('marketIds') marketIds: number[],
+  ) {
+    return this.marketService.assignMarkets(user_id, marketIds);
   }
 }

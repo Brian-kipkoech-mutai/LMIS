@@ -1,16 +1,24 @@
 // src/market/market.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { CreateMarketDto, UpdateMarketDto } from './dtos/market.dto';
 import { RegionsService } from 'src/regions/regions.service';
-import { Market } from './entities/market.entity'
+import { Market } from './entities/market.entity';
+import { UserRoles } from 'src/users/enums/user.roles.enums';
+import { UsersService } from 'src/users/users.service';
+
 @Injectable()
 export class MarketService {
   constructor(
     @InjectRepository(Market)
     private marketRepository: Repository<Market>,
     private regionsService: RegionsService,
+    private usersService: UsersService,
   ) {}
 
   async create(createMarketDto: CreateMarketDto): Promise<Market> {
@@ -74,8 +82,32 @@ export class MarketService {
   save(market: Market): Promise<Market> {
     return this.marketRepository.save(market);
   }
+
+  //asing markest
+  async assignMarkets(id: number, marketsIds: number[]): Promise<boolean> {
+    const user = await this.usersService.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    if (user.role !== UserRoles.DATA_COLLECTOR) {
+      throw new BadRequestException(
+        'Only FIELD_AGENT users can be assigned markets',
+      );
+    }
+    const markets = await this.findByIds(marketsIds);
+
+    // Validate all markets exist
+    if (markets.length !== marketsIds.length) {
+      throw new BadRequestException('One or more markets not found');
+    }
+
+    // Assign user to each market
+    for (const market of markets) {
+      market.data_collector = user;
+      await this.save(market);
+    }
+
+    return true;
+  }
 }
-
-
- 
-
