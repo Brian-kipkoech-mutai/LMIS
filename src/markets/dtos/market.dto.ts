@@ -27,7 +27,7 @@ export class UpdateMarketDto {
   @ApiProperty({
     example: 'import',
     description: 'Type of market (import, export)',
-    required: false,
+    required: true,
     enum: MarketType,
     enumName: 'MarketType',
   })

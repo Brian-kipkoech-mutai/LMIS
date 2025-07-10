@@ -51,6 +51,9 @@ export class MarketService {
     if (updateMarketDto.name) {
       market.name = updateMarketDto.name;
     }
+    if (updateMarketDto.marketType) {
+      market.marketType = updateMarketDto.marketType;
+    }
 
     if (updateMarketDto.regionId) {
       const region = await this.regionsService.findOne(
