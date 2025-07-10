@@ -59,7 +59,7 @@ export class AuthController {
     if (user.phoneNumber) {
       this.smsService.sendSms(
         user.phoneNumber,
-        `[Somalia Livestock Market Portal] Your OTP is ${otp}. It expires in 10 minutes. Do not share this code.`,
+        `[Somalia Livestock Market Portal] Your OTP is ${otp}. It expires in 5 minutes. Do not share this code.`,
       );
       console.log('SMS sent to:', user.phoneNumber);
     } else {
