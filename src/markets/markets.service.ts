@@ -28,7 +28,7 @@ export class MarketService {
     }
     console.log('Region found:', region);
     const market = this.marketRepository.create({
-      name: createMarketDto.name,
+      ...createMarketDto,
       regionId: region.id, // Associate the region with the market
     });
 
