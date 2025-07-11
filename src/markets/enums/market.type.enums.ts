@@ -1,4 +1,4 @@
 export enum MarketType {
-  IMPORT = 'import',
+  LOCAL = 'local',
   EXPORT = 'export',
 }

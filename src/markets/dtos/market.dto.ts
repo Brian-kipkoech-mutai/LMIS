@@ -10,7 +10,7 @@ export class CreateMarketDto {
   regionId!: number;
   @ApiProperty({
     example: 'import',
-    description: 'Type of market (import, export)',
+    description: 'Type of market (local, export)',
     required: true,
     enum: MarketType,
     enumName: 'MarketType',
@@ -26,7 +26,7 @@ export class UpdateMarketDto {
 
   @ApiProperty({
     example: 'import',
-    description: 'Type of market (import, export)',
+    description: 'Type of market (local, export)',
     required: true,
     enum: MarketType,
     enumName: 'MarketType',
