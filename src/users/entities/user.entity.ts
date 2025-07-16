@@ -6,11 +6,13 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   OneToMany,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Otp } from '../../auth/entities/otp.entity';
 import { Market } from 'src/markets/entities/market.entity';
 import { UserRoles } from '../enums/user.roles.enums';
-
+import { Region } from 'src/regions/entities/region.entity';
 @Entity('lmis_user')
 export class User {
   @PrimaryGeneratedColumn()
@@ -42,6 +44,10 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @OneToOne(() => Region, { nullable: true })
+  @JoinColumn()
+  region?: Region;
 
   @Column({ type: 'timestamp', nullable: true })
   lastLogin?: Date;

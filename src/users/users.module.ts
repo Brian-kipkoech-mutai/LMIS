@@ -1,14 +1,16 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { MarketsModule } from 'src/markets/markets.module';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
-import { AuthModule } from 'src/auth/auth.module';
+
+import { RegionsModule } from 'src/regions/regions.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), forwardRef(() => AuthModule)], // Use forwardRef to avoid circular dependency with AuthModule
+  imports: [TypeOrmModule.forFeature([User]), RegionsModule, MarketsModule],
   providers: [UsersService],
-  exports: [UsersService], // 👈 Needed for AuthModule to inject
+  exports: [UsersService],
   controllers: [UsersController],
 })
 export class UsersModule {}

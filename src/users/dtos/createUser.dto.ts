@@ -1,5 +1,11 @@
 //create  user dto
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsNumber,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRoles } from '../enums/user.roles.enums';
 
@@ -34,4 +40,9 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty({ message: 'Phone number is required' })
   phoneNumber!: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty({ message: 'Region ID is required' })
+  regionId?: number;
 }

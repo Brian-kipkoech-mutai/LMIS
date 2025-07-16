@@ -43,13 +43,13 @@ export class Market {
   region!: Region;
 
   @Column()
-  regionId!: number;
+  regionId!: number | null;
 
   @ManyToOne(() => User, (user) => user.markets, {
     nullable: true,
     eager: true, //  automatically fetch the user when querying market
   })
-  data_collector!: User;
+  data_collector!: User | null;
 
   @Column({ nullable: true, type: 'enum', enum: MarketType })
   @ApiProperty({

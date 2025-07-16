@@ -1,3 +1,4 @@
+import { Region } from './../regions/entities/region.entity';
 import {
   ConflictException,
   Injectable,
@@ -11,12 +12,17 @@ import { CreateUserDto } from './dtos/createUser.dto';
 import { UpdateUserDto } from './dtos/updateUser.dto';
 import { hashPassword } from 'src/utils/hash.passoword';
 import { UserRoles } from './enums/user.roles.enums';
+import { RegionsService } from 'src/regions/regions.service';
+import { MarketService } from 'src/markets/markets.service';
+import { UpdateUserRegionAndMarketsDto } from './dtos/update-user-region-markets.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly regionService: RegionsService,
+    private readonly marketService: MarketService,
   ) {}
 
   async findByEmail(email: string): Promise<User | null> {
@@ -36,7 +42,10 @@ export class UsersService {
   }
 
   async findById(id: number): Promise<User | null> {
-    const user = await this.userRepo.findOne({ where: { id } });
+    const user = await this.userRepo.findOne({
+      where: { id },
+      relations: ['markets', 'region'],
+    });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -70,21 +79,57 @@ export class UsersService {
     id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<Omit<User, 'password'>> {
-    const user = await this.findById(id);
+    const user = await this.userRepo.findOne({
+      where: { id },
+      relations: ['region', 'markets'], // Load region and markets to handle logic
+    });
+    console.log('userObj', user);
+
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
+    console.log(
+      'region details',
+      updateUserDto.regionId,
+      updateUserDto.regionId !== user.region?.id,
+    );
+    // Handle region change
+    if (updateUserDto.regionId && updateUserDto.regionId !== user.region?.id) {
+      const newRegion = await this.regionService.findOne(
+        updateUserDto.regionId,
+      );
+      if (!newRegion) {
+        throw new NotFoundException(
+          `Region with ID ${updateUserDto.regionId} not found`,
+        );
+      }
 
-    // Update user properties
+      // Detach all currently assigned markets
+      if (user.markets) {
+        console.log('markeres  to detach');
+        const marketIdsToDetach = user.markets.map(({ id }) => id);
+        console.log('markeres  to detach', marketIdsToDetach);
+
+        await this.marketService.detachDataCollectorFromMarkets(
+          marketIdsToDetach,
+        );
+      }
+      user.region = newRegion;
+      //prevent reataching markets  during saving 
+       user.markets = [];
+    }
+
+    // Update other fields
     Object.assign(user, updateUserDto);
 
-    // If password is updated, hash it
+    // Hash password if updated
     if (updateUserDto.password) {
       user.password = await hashPassword(updateUserDto.password);
     }
-    // Save the updated user
+
     try {
       const saved = await this.userRepo.save(user);
+
       if (updateUserDto.password) {
         await this.updateLastPasswordChange(id);
       }
@@ -144,9 +189,62 @@ export class UsersService {
 
   //find by role
   async findByRole(role: UserRoles): Promise<Omit<User, 'password'>[]> {
-    const users = await this.userRepo.find({ where: { role } });
+    const users =
+      role === UserRoles.DATA_COLLECTOR
+        ? await this.userRepo.find({
+            where: { role },
+            relations: ['region', 'markets'],
+          })
+        : await this.userRepo.find({ where: { role } });
+
     return users.map(
       ({ password, ...userWithoutPassword }) => userWithoutPassword,
     );
+  }
+
+  // update  regions and markets
+  async updateRegionAndHandleMarkets(
+    userId: number,
+    payload: UpdateUserRegionAndMarketsDto,
+  ): Promise<Omit<User, 'password'>> {
+    //  Step 1: Reuse your existing update logic for region & password
+    const updatedUser = await this.update(userId, {
+      regionId: payload.regionId,
+    });
+
+    //  Step 2: Handle Market Removal
+    if (
+      updatedUser?.region?.id === payload.regionId &&
+      payload.markets?.remove?.length
+    ) {
+      const marketsToRemove = await this.marketService.findByIds(
+        payload.markets.remove,
+      );
+
+      for (const market of marketsToRemove) {
+        if (market.data_collector?.id === userId) {
+          market.data_collector = null;
+          await this.marketService.save(market);
+        }
+      }
+    }
+
+    //  Step 3: Handle Market Assignment
+    if (payload.markets?.add?.length) {
+      await this.marketService.assignMarkets(userId, payload.markets.add);
+    }
+
+    //  Return updated user without password
+    const finalUser = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['region', 'markets'],
+    });
+
+    if (!finalUser) {
+      throw new NotFoundException('User update failed');
+    }
+
+    const { password, ...userWithoutPassword } = finalUser;
+    return userWithoutPassword;
   }
 }

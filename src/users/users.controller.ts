@@ -25,6 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { UpdateUserDto } from './dtos/updateUser.dto';
 import { UserRoles } from './enums/user.roles.enums';
+import { UpdateUserRegionAndMarketsDto } from './dtos/update-user-region-markets.dto';
 
 @ApiTags('users') // Swagger tag for users endpoints
 @ApiBearerAuth() // Use Bearer token authentication
@@ -103,5 +104,26 @@ export class UsersController {
   @Get('role/:role')
   getUsersByRole(@Param('role') role: UserRoles) {
     return this.usersService.findByRole(role);
+  }
+  // Update user region and markets
+  @ApiOperation({ summary: 'Update user region and markets' })
+  @ApiAcceptedResponse({
+    description: 'User region and markets updated successfully',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User region and markets updated successfully',
+  })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 400, description: 'Validation failed' })
+  @Patch(':id/region-markets')
+  updateUserRegionAndMarkets(
+    @Param('id') id: number,
+    @Body() updateUserRegionAndMarketsDto: UpdateUserRegionAndMarketsDto,
+  ) {
+    return this.usersService.updateRegionAndHandleMarkets(
+      id,
+      updateUserRegionAndMarketsDto,
+    );
   }
 }

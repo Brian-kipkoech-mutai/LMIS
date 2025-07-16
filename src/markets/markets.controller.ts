@@ -16,7 +16,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { MarketService } from './markets.service';
-import { CreateMarketDto, UpdateMarketDto } from './dtos/market.dto';
+import { AssignMarketsToRegionDto, CreateMarketDto, UpdateMarketDto } from './dtos/market.dto';
 import { Market } from './entities/market.entity';
 import { Param } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -76,5 +76,36 @@ export class MarketController {
     @Body('marketIds') marketIds: number[],
   ) {
     return this.marketService.assignMarkets(user_id, marketIds);
+  }
+  //   get markets per  regions
+  @Get('region/:region_id')
+  @ApiOperation({ summary: 'Get markets by region' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of markets in the region',
+    type: [Market],
+  })
+  @ApiResponse({ status: 404, description: 'Region not found' })
+  findMarketsByRegion(@Param('region_id') region_id: number) {
+    return this.marketService.findByRegion(region_id);
+  }
+
+  //assign markets to regions
+  @Patch(':region_id/assign-markets-to-region')
+  @ApiOperation({ summary: 'Assign markets to a region' })
+  @ApiAcceptedResponse({
+    description: 'Markets assigned to region successfully',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Markets assigned to region successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Region or markets not found' })
+  @ApiBody({ schema: { example: { marketIds: [1, 2, 3] } } })
+  assignMarketsToRegion(
+    @Param('region_id') region_id: number,
+    @Body('marketIds') marketIds: AssignMarketsToRegionDto,
+  ) {
+    return this.marketService.assignMarketsToRegion(region_id, marketIds);
   }
 }

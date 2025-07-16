@@ -17,7 +17,7 @@ export class RegionsService {
   }
 
   async findAll(): Promise<Region[]> {
-    return this.regionRepository.find();
+    return this.regionRepository.find({ relations:['markets']});
   }
 
   async findOne(id: number): Promise<Region | null> {
