@@ -9,12 +9,14 @@ import { User } from 'src/users/entities/user.entity';
 import { EntityRepositoryMap } from 'src/utils/repository.maps';
 import { Market } from 'src/markets/entities/market.entity';
 import { Region } from 'src/regions/entities/region.entity';
+import { Species } from 'src/livestock-types/entities/species.entity';
+import { Grade } from 'src/livestock-types/entities/grade.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([AuditLog,User,Market, Region])],
+  imports: [TypeOrmModule.forFeature([AuditLog,User,Market, Region,Species,Grade])],
   controllers: [AuditController],
   providers: [
     AuditService,
-    AuditInterceptor, // Now properly included
+    AuditInterceptor,  
     EntityRepositoryMap
   ],
   exports: [

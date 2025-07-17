@@ -45,7 +45,10 @@ export class AuditMiddleware implements NestMiddleware {
   }
 
   private getEntityTypeFromPath(path: string): string {
-    return path.split('/')[1]?.toLowerCase(); // e.g. '/users/123' → 'users'
+    //special for  livestock-types
+    if (path.startsWith('/livestock-types/')) {
+      return path.split('/')[2]?.toLowerCase(); // e.g. '/livestock-types/species' → 'species'
+    } else return path.split('/')[1]?.toLowerCase(); // e.g. '/users/123' → 'users'
   }
 
   private sanitizeSensitiveFields(data: any, entityType: string): void {
