@@ -8,6 +8,7 @@ import {
   OneToMany,
   OneToOne,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Otp } from '../../auth/entities/otp.entity';
 import { Market } from 'src/markets/entities/market.entity';
@@ -45,7 +46,7 @@ export class User {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @OneToOne(() => Region, { nullable: true })
+  @ManyToOne(() => Region, { nullable: true })
   @JoinColumn({ name: 'regionId' })
   region?: Region;
 
