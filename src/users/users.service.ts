@@ -54,14 +54,33 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
-    //fast   hash the  password
+     if (
+      createUserDto.role === UserRoles.DATA_COLLECTOR &&
+      !!!createUserDto.regionId
+    ) {
+      throw new ConflictException(
+        `Invalid data  for: ${createUserDto.role}. Data collectors must be assigned to a region.`,
+      );
+    }
+    const regionEntity = createUserDto.regionId
+      ? await this.regionService.findOne(createUserDto.regionId)
+      : undefined;
+
+    if (regionEntity === null || regionEntity === undefined) {
+      throw new NotFoundException(
+        `Region with ID ${createUserDto.regionId} not found`,
+      );
+    }
+    //hash the password before saving
     const hashedPassword = await hashPassword(createUserDto.password);
+
     const user = this.userRepo.create({
       username: createUserDto.username,
       email: createUserDto.email,
       password: hashedPassword,
       role: UserRoles[createUserDto.role.toLocaleUpperCase()],
       phoneNumber: createUserDto.phoneNumber,
+      regionId: regionEntity.id,
     });
     try {
       const saved = await this.userRepo.save(user);
@@ -115,8 +134,8 @@ export class UsersService {
         );
       }
       user.region = newRegion;
-      //prevent reataching markets  during saving 
-       user.markets = [];
+      //prevent reataching markets  during saving
+      user.markets = [];
     }
 
     // Update other fields

@@ -46,8 +46,11 @@ export class User {
   updatedAt!: Date;
 
   @OneToOne(() => Region, { nullable: true })
-  @JoinColumn()
+  @JoinColumn({ name: 'regionId' })
   region?: Region;
+
+  @Column({ nullable: true })
+  regionId?: number;
 
   @Column({ type: 'timestamp', nullable: true })
   lastLogin?: Date;
