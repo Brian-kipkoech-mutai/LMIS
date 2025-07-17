@@ -54,7 +54,7 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
-     if (
+    if (
       createUserDto.role === UserRoles.DATA_COLLECTOR &&
       !!!createUserDto.regionId
     ) {
@@ -181,6 +181,11 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
+    //we need to check if user is  data collector first,  if so we need to detach the markets
+    if (user.role === UserRoles.DATA_COLLECTOR && user.markets.length > 0) {
+      const marketIds = user.markets.map((market) => market.id);
+      await this.marketService.detachDataCollectorFromMarkets(marketIds);
+    }
     await this.userRepo.softDelete(id);
   }
 
